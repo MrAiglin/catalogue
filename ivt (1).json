@@ -1,0 +1,17 @@
+{
+  "_schema": {
+    "description": "Répertoire IVT Dr Aiglin — durées stockées en secondes entières",
+    "format": {
+      "YYYY-MM-DD": {
+        "count": "int — nombre total d'IVT réalisés ce jour (exhaustif)",
+        "durations_seconds": "int[] — liste des durées mesurées, peut être incomplète (length <= count)"
+      }
+    }
+  },
+  "data": {
+    "2026-04-17": {
+      "count": 20,
+      "durations_seconds": [193, 183, 206, 161, 169, 182, 208, 178, 187, 181]
+    }
+  }
+}
