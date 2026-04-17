@@ -269,9 +269,9 @@ let CACHED_BLOB = null;
 
 async function fetchBlob(){
   if(CACHED_BLOB) return CACHED_BLOB;
-  const url = './data/ivt.json?v=' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  const url = './data/ivt.enc?v=' + Date.now() + '-' + Math.random().toString(36).slice(2);
   const res = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
-  if(!res.ok) throw new Error('HTTP ' + res.status + ' — data/ivt.json introuvable');
+  if(!res.ok) throw new Error('HTTP ' + res.status + ' — data/ivt.enc introuvable');
   const wrapper = await res.json();
   if(!wrapper.blob) throw new Error('champ "blob" absent du fichier');
   const raw = wrapper.blob.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
