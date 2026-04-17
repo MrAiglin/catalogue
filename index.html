@@ -269,12 +269,27 @@ let CACHED_BLOB = null;
 
 async function fetchBlob(){
   if(CACHED_BLOB) return CACHED_BLOB;
-  const url = './data/ivt.enc?v=' + Date.now() + '-' + Math.random().toString(36).slice(2);
-  const res = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
-  if(!res.ok) throw new Error('HTTP ' + res.status + ' — data/ivt.enc introuvable');
-  const wrapper = await res.json();
-  if(!wrapper.blob) throw new Error('champ "blob" absent du fichier');
-  const raw = wrapper.blob.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+  const bust = Date.now() + '-' + Math.random().toString(36).slice(2);
+  const candidates = ['./data/ivt.enc', './data/ivt.json'];
+  let res = null, usedUrl = null;
+  for(const path of candidates){
+    const url = path + '?v=' + bust;
+    try {
+      const r = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){ res = r; usedUrl = path; break; }
+    } catch(_){}
+  }
+  if(!res) throw new Error('HTTP 404 — ni data/ivt.enc ni data/ivt.json trouvés');
+  console.log('[IVT] Fichier lu:', usedUrl);
+  let raw = await res.text();
+  raw = raw.replace(/^\uFEFF/, '').replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+  // Si c'est un wrapper JSON { "blob": "..." }, on extrait
+  if(raw.startsWith('{')){
+    try {
+      const parsed = JSON.parse(raw);
+      if(parsed.blob) raw = parsed.blob.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+    } catch(_){ /* pas du JSON, on garde tel quel */ }
+  }
   console.log('[IVT] Blob fetched — longueur:', raw.length);
   if(raw.length < 50) throw new Error('blob trop court (' + raw.length + ' chars)');
   CACHED_BLOB = raw;
