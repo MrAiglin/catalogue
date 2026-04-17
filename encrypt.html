@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chiffrement IVT — Dr Aiglin</title>
+<meta name="theme-color" content="#0a1f1a">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#061510; --bg:#0a1f1a; --bg-2:#0f2a23; --surface:#133028;
+  --border:#1e4a3c; --border-bright:#2a6b56;
+  --ink:#e8f0ec; --ink-dim:#a8c0b5; --ink-faint:#6b8a7e;
+  --accent:#34d399; --accent-bright:#6ee7b7;
+  --green:#34d399; --green-bg:#0f3d2e;
+  --orange:#f59e0b; --orange-bg:#3d2e0f;
+  --red:#f87171; --red-bg:#3d1515;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter Tight',-apple-system,sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(52,211,153,0.08),transparent),linear-gradient(180deg,var(--bg),var(--bg-deep));
+  background-attachment:fixed;
+  color:var(--ink); min-height:100vh;
+  padding:24px 20px;
+  padding-top:max(24px,env(safe-area-inset-top));
+  padding-bottom:max(24px,env(safe-area-inset-bottom));
+  letter-spacing:-0.005em;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0.3;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.25 0 0 0 0 0.22 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.container{max-width:720px;margin:0 auto;position:relative;z-index:1}
+
+.header{padding:20px 0 32px;border-bottom:1px solid var(--border);margin-bottom:28px;position:relative}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.05;letter-spacing:-0.03em;margin-bottom:8px;font-variation-settings:"opsz" 96}
+h1 em{font-style:italic;color:var(--accent-bright);font-weight:300}
+.subtitle{font-size:0.82rem;color:var(--ink-faint);max-width:520px;line-height:1.55}
+
+fieldset{border:1px solid var(--border);border-radius:4px;padding:18px 20px;margin-bottom:14px;background:linear-gradient(180deg,rgba(19,48,40,0.4),rgba(10,31,26,0.2));backdrop-filter:blur(8px)}
+legend{padding:0 10px;font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:1rem;color:var(--accent-bright);letter-spacing:-0.01em}
+
+label{display:block;font-size:0.82rem;color:var(--ink-dim);margin-bottom:8px;font-weight:500}
+.hint{display:block;font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);margin-top:4px;font-weight:400;letter-spacing:0.03em}
+
+textarea,input[type=password]{width:100%;padding:12px 14px;background:var(--bg-deep);color:var(--ink);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.85rem;transition:all 0.2s;resize:vertical}
+textarea{min-height:200px;line-height:1.5}
+textarea:focus,input[type=password]:focus{outline:none;border-color:var(--accent);background:var(--bg-2);box-shadow:0 0 0 3px rgba(52,211,153,0.12)}
+
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+button{padding:14px 22px;background:var(--accent);color:var(--bg-deep);border:none;border-radius:3px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter Tight',sans-serif;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;flex:1;min-width:140px}
+button:hover{background:var(--accent-bright);transform:translateY(-1px);box-shadow:0 8px 24px rgba(52,211,153,0.25)}
+button.secondary{background:transparent;color:var(--ink-dim);border:1px solid var(--border-bright)}
+button.secondary:hover{background:var(--surface);color:var(--ink);border-color:var(--accent);box-shadow:none}
+button:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+.status{padding:14px 18px;border-radius:3px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.55;display:none;border:1px solid}
+.status.show{display:block;animation:slideUp 0.3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.status.ok{background:var(--green-bg);border-color:var(--green);color:#d1fae5}
+.status.err{background:var(--red-bg);border-color:var(--red);color:#fee2e2}
+.status.info{background:var(--orange-bg);border-color:var(--orange);color:#fef3c7}
+
+.copy-btn{padding:6px 12px;font-size:0.7rem;margin-left:auto;background:transparent;border:1px solid var(--border-bright);color:var(--ink-dim);min-width:auto;flex:none}
+.copy-btn:hover{background:var(--surface);color:var(--accent);box-shadow:none}
+
+.output-section{display:none}
+.output-section.show{display:block;animation:slideUp 0.4s}
+
+.warn{background:rgba(245,158,11,0.08);border:1px solid var(--orange);border-radius:3px;padding:12px 16px;margin-top:14px;font-size:0.78rem;color:#fef3c7;line-height:1.6}
+.warn strong{color:var(--orange);font-weight:600}
+
+.footer{margin-top:40px;padding:24px 0 16px;border-top:1px solid var(--border);text-align:center}
+.signature{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:1.05rem;color:var(--accent-bright);margin-bottom:6px}
+.signature .amp{color:var(--ink-faint);font-weight:300;margin:0 4px}
+.disclaimer{font-size:0.7rem;color:var(--ink-faint);max-width:520px;margin:0 auto;line-height:1.55;font-style:italic}
+
+@media (max-width:520px){
+  body{padding:16px 14px}
+  fieldset{padding:14px}
+  .actions{flex-direction:column}
+  button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="header">
+  <div class="eyebrow">Outil de chiffrement</div>
+  <h1>Chiffrement <em>IVT</em></h1>
+  <p class="subtitle">Chiffre/déchiffre le fichier <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">data/ivt.enc</code> en AES-GCM 256. Tout se passe en local dans ton navigateur — le mot de passe ne quitte jamais cette page.</p>
+</header>
+
+<!-- MODE : chiffrer OU déchiffrer -->
+<fieldset>
+  <legend>Mode</legend>
+  <div class="actions" style="margin-top:6px">
+    <button type="button" id="mode-encrypt" class="secondary">Chiffrer (JSON → blob)</button>
+    <button type="button" id="mode-decrypt" class="secondary">Déchiffrer (blob → JSON)</button>
+  </div>
+</fieldset>
+
+<!-- INPUT -->
+<fieldset id="input-section">
+  <legend id="input-legend">Entrée</legend>
+  <label id="input-label">JSON à chiffrer
+    <span class="hint">colle ici le contenu complet de data/ivt.json</span>
+  </label>
+  <textarea id="input-data" placeholder="{ ... }" spellcheck="false"></textarea>
+  
+  <label style="margin-top:14px">Mot de passe
+    <span class="hint">minimum 12 caractères recommandé · ne sera pas enregistré</span>
+  </label>
+  <input type="password" id="pwd" placeholder="••••••••••••" autocomplete="new-password">
+  
+  <div class="actions">
+    <button type="button" id="process-btn">Chiffrer</button>
+    <button type="button" class="secondary" id="reset-btn">Effacer</button>
+  </div>
+  
+  <div class="status" id="status"></div>
+</fieldset>
+
+<!-- OUTPUT -->
+<fieldset id="output-section" class="output-section">
+  <legend>Résultat</legend>
+  <label id="output-label" style="display:flex;align-items:center">
+    <span>Blob chiffré</span>
+    <button type="button" class="copy-btn" id="copy-btn">Copier</button>
+  </label>
+  <textarea id="output-data" readonly spellcheck="false"></textarea>
+  <div class="warn" id="output-warn"></div>
+</fieldset>
+
+<footer class="footer">
+  <div class="signature">Dr <span class="amp">·</span> Aiglin</div>
+  <p class="disclaimer">Outil local, aucun envoi réseau. Le chiffrement utilise PBKDF2-SHA256 (250 000 itérations) + AES-GCM 256. Un mot de passe faible reste brute-forceable.</p>
+</footer>
+
+</div>
+
+<script>
+'use strict';
+
+const PBKDF2_ITERATIONS = 250000;
+const SALT_LENGTH = 16;
+const IV_LENGTH = 12;
+const VERSION = 1; // Pour futures évolutions du format
+
+let currentMode = 'encrypt';
+
+const $ = (id) => document.getElementById(id);
+
+// =========================================================================
+// CRYPTO HELPERS
+// =========================================================================
+
+async function deriveKey(password, salt){
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey(
+    'raw', enc.encode(password),
+    { name: 'PBKDF2' }, false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt,
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256'
+    },
+    baseKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function encrypt(plaintext, password){
+  const enc = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const key = await deriveKey(password, salt);
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    enc.encode(plaintext)
+  );
+  // Format : version(1) || salt(16) || iv(12) || ciphertext
+  const ct = new Uint8Array(ciphertext);
+  const out = new Uint8Array(1 + salt.length + iv.length + ct.length);
+  out[0] = VERSION;
+  out.set(salt, 1);
+  out.set(iv, 1 + salt.length);
+  out.set(ct, 1 + salt.length + iv.length);
+  return bytesToBase64(out);
+}
+
+async function decrypt(blobB64, password){
+  const blob = base64ToBytes(blobB64.trim());
+  if(blob.length < 1 + SALT_LENGTH + IV_LENGTH + 16){
+    throw new Error('Blob trop court ou corrompu');
+  }
+  const version = blob[0];
+  if(version !== VERSION){
+    throw new Error(`Version ${version} non supportée`);
+  }
+  const salt = blob.slice(1, 1 + SALT_LENGTH);
+  const iv = blob.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+  const ct = blob.slice(1 + SALT_LENGTH + IV_LENGTH);
+  const key = await deriveKey(password, salt);
+  const dec = new TextDecoder();
+  const plaintext = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    ct
+  );
+  return dec.decode(plaintext);
+}
+
+function bytesToBase64(bytes){
+  let bin = '';
+  for(const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function base64ToBytes(b64){
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// =========================================================================
+// UI
+// =========================================================================
+
+function setMode(mode){
+  currentMode = mode;
+  const encBtn = $('mode-encrypt');
+  const decBtn = $('mode-decrypt');
+  encBtn.classList.toggle('secondary', mode !== 'encrypt');
+  decBtn.classList.toggle('secondary', mode !== 'decrypt');
+  
+  if(mode === 'encrypt'){
+    $('input-legend').textContent = 'Entrée (JSON clair)';
+    $('input-label').firstChild.textContent = 'JSON à chiffrer';
+    $('input-label').querySelector('.hint').textContent = 'colle ici le contenu complet de data/ivt.json (tel que Claude te l\'a donné)';
+    $('input-data').placeholder = '{\n  "_schema": { ... },\n  "data": { ... }\n}';
+    $('process-btn').textContent = 'Chiffrer';
+    $('output-label').querySelector('span').textContent = 'Blob chiffré (à commit sous data/ivt.enc)';
+  } else {
+    $('input-legend').textContent = 'Entrée (blob chiffré)';
+    $('input-label').firstChild.textContent = 'Blob à déchiffrer';
+    $('input-label').querySelector('.hint').textContent = 'colle ici le contenu de data/ivt.enc';
+    $('input-data').placeholder = 'AQB...base64...';
+    $('process-btn').textContent = 'Déchiffrer';
+    $('output-label').querySelector('span').textContent = 'JSON clair';
+  }
+  hideOutput();
+}
+
+function showStatus(msg, type){
+  const el = $('status');
+  el.textContent = msg;
+  el.className = 'status show ' + type;
+}
+
+function hideStatus(){
+  $('status').className = 'status';
+}
+
+function hideOutput(){
+  $('output-section').classList.remove('show');
+  $('output-data').value = '';
+}
+
+$('mode-encrypt').addEventListener('click', () => setMode('encrypt'));
+$('mode-decrypt').addEventListener('click', () => setMode('decrypt'));
+
+$('process-btn').addEventListener('click', async () => {
+  hideStatus();
+  hideOutput();
+  
+  const input = $('input-data').value.trim();
+  const pwd = $('pwd').value;
+  
+  if(!input){
+    showStatus('Entrée vide.', 'err');
+    return;
+  }
+  if(!pwd){
+    showStatus('Mot de passe requis.', 'err');
+    return;
+  }
+  if(currentMode === 'encrypt' && pwd.length < 8){
+    showStatus('Mot de passe trop court (< 8 caractères). Annulé.', 'err');
+    return;
+  }
+  
+  try {
+    if(currentMode === 'encrypt'){
+      // Validation JSON
+      try { JSON.parse(input); }
+      catch(e){ showStatus('JSON invalide : ' + e.message, 'err'); return; }
+      
+      showStatus('Chiffrement en cours (PBKDF2 × 250k)…', 'info');
+      const blob = await encrypt(input, pwd);
+      showStatus(`✓ Chiffré — ${blob.length} caractères base64 (${Math.round(blob.length * 0.75)} octets)`, 'ok');
+      $('output-data').value = blob;
+      $('output-warn').innerHTML = '<strong>→ Étapes suivantes :</strong><br>1. Copie le blob ci-dessus.<br>2. Sur GitHub, édite <code style="color:var(--accent)">data/ivt.enc</code> (crée le fichier s\'il n\'existe pas).<br>3. Remplace tout le contenu par le blob.<br>4. Commit. Le dashboard pourra déchiffrer avec ce mot de passe.';
+      $('output-section').classList.add('show');
+    } else {
+      showStatus('Déchiffrement en cours…', 'info');
+      const json = await decrypt(input, pwd);
+      showStatus('✓ Déchiffré avec succès', 'ok');
+      // Pretty-print si possible
+      try {
+        const pretty = JSON.stringify(JSON.parse(json), null, 2);
+        $('output-data').value = pretty;
+      } catch(_) {
+        $('output-data').value = json;
+      }
+      $('output-warn').innerHTML = '<strong>⚠ Attention :</strong> ce JSON est en clair dans ton navigateur. Ferme l\'onglet après usage. Ne le commits jamais tel quel dans un repo public.';
+      $('output-section').classList.add('show');
+    }
+  } catch(e){
+    if(currentMode === 'decrypt'){
+      showStatus('✕ Échec du déchiffrement. Mot de passe incorrect ou blob altéré.', 'err');
+    } else {
+      showStatus('Erreur : ' + (e.message || e), 'err');
+    }
+  }
+});
+
+$('reset-btn').addEventListener('click', () => {
+  $('input-data').value = '';
+  $('pwd').value = '';
+  hideStatus();
+  hideOutput();
+});
+
+$('copy-btn').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText($('output-data').value);
+    $('copy-btn').textContent = 'Copié ✓';
+    setTimeout(() => { $('copy-btn').textContent = 'Copier'; }, 1500);
+  } catch(_){
+    // Fallback
+    $('output-data').select();
+    document.execCommand('copy');
+    $('copy-btn').textContent = 'Copié ✓';
+    setTimeout(() => { $('copy-btn').textContent = 'Copier'; }, 1500);
+  }
+});
+
+// Init
+setMode('encrypt');
+
+</script>
+</body>
+</html>
