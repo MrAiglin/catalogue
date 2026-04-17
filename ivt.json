@@ -1,17 +1,1 @@
-{
-  "_schema": {
-    "description": "Répertoire IVT Dr Aiglin — durées stockées en secondes entières",
-    "format": {
-      "YYYY-MM-DD": {
-        "count": "int — nombre total d'IVT réalisés ce jour (exhaustif)",
-        "durations_seconds": "int[] — liste des durées mesurées, peut être incomplète (length <= count)"
-      }
-    }
-  },
-  "data": {
-    "2026-04-17": {
-      "count": 20,
-      "durations_seconds": [193, 183, 206, 161, 169, 182, 208, 178, 187, 181]
-    }
-  }
-}
+AVoCPYFTysAVR8TKApSN7S4iiUsAW5IS6D1u8y4LlsjjHkmHCM1iAO1TBDaze1yk2KzW2lrn0HCbu4IKxhpn0sF+2hkdfwcuVICZgGx11GamJ7tC6kC7JxRnsjcSjqoAHUcluK9hBGcvEyFcIuJl6IDktjx2J1eS2q+ixTRrFKoCSBkXZOgEieMuJLfI1J+2cfXKgyf92YNZZVORvPkP9lpCwFxiQCyAmUiQg009d3g8l4LTW6XTZE/rRNN4DIEInkL6+nwWEKIn0k6fby6BHse4pSN6XoAbT5nVH2q3kQ9iTsvqU0OZUocWjiwi2YMCso2zG5/tf6VMSz5RSrES+B5lT5v7G48GxXoxVOoiDvBpNlt1Cda8TPb1RoKxEwjs+ROVY60Q/XmrMlhHdy3BjM4gQE4wEITiZxzRvrVDv5AGzJOht68RcFCT7VCvqoOrmfiJynWQgIwKEp2IfCLvZZT12MruwHD41jbztBd0
