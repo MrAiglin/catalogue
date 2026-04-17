@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagnostic Crypto IVT</title>
+<style>
+body { font-family: ui-monospace, 'JetBrains Mono', monospace; background: #0a1f1a; color: #e8f0ec; padding: 20px; line-height: 1.6; }
+h1 { color: #34d399; }
+.step { margin: 16px 0; padding: 12px; border-left: 3px solid #2a6b56; background: rgba(19,48,40,0.4); }
+.ok { border-left-color: #34d399; color: #d1fae5; }
+.ko { border-left-color: #f87171; color: #fee2e2; }
+.info { color: #a8c0b5; font-size: 0.9em; }
+pre { background: #061510; padding: 8px; border-radius: 3px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; font-size: 0.8em; color: #6ee7b7; }
+button { background: #34d399; color: #0a1f1a; border: none; padding: 12px 20px; border-radius: 3px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 1em; }
+input { background: #061510; color: #e8f0ec; border: 1px solid #2a6b56; padding: 8px 12px; border-radius: 3px; font-family: inherit; width: 300px; }
+</style>
+</head>
+<body>
+
+<h1>🔍 Diagnostic Crypto IVT</h1>
+<p>Ce test fait un round-trip complet chiffrement → déchiffrement dans cette page. Si ça échoue ici, le problème est dans ton navigateur, pas dans le code.</p>
+
+<p>
+  <label>Mot de passe test : <input type="text" id="pwd" value="12345678"></label>
+  <button onclick="runDiagnostic()">Lancer le diagnostic</button>
+</p>
+
+<div id="results"></div>
+
+<script>
+'use strict';
+
+const PBKDF2_ITERATIONS = 250000;
+const SALT_LENGTH = 16;
+const IV_LENGTH = 12;
+const VERSION = 1;
+
+function log(msg, klass){
+  const div = document.createElement('div');
+  div.className = 'step ' + (klass || '');
+  div.innerHTML = msg;
+  document.getElementById('results').appendChild(div);
+}
+
+function hex(bytes){
+  return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function deriveKey(password, salt, label){
+  const baseKey = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password),
+    { name: 'PBKDF2' }, false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    baseKey, { name: 'AES-GCM', length: 256 },
+    false, ['encrypt', 'decrypt']
+  );
+}
+
+async function runDiagnostic(){
+  document.getElementById('results').innerHTML = '';
+  const pwd = document.getElementById('pwd').value;
+  log('🔧 Démarrage — MDP: <code>' + pwd + '</code> (longueur ' + pwd.length + ')');
+
+  // ===== ÉTAPE 1 : Environnement =====
+  log('📋 Navigateur : <code>' + navigator.userAgent + '</code>', 'info');
+  log('🔐 crypto.subtle dispo : <code>' + (typeof crypto.subtle !== 'undefined') + '</code>', 'info');
+
+  try {
+    // ===== ÉTAPE 2 : Chiffrement =====
+    const plaintext = JSON.stringify({
+      _schema: {},
+      data: { '2026-04-17': { count: 20, durations_seconds: [193,183,206,161,169,182,208,178,187,181] } }
+    });
+    log('📝 Plaintext len: ' + plaintext.length + ' caractères');
+
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_LENGTH));
+    const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+    log('🎲 Salt: <code>' + hex(salt) + '</code><br>🎲 IV: <code>' + hex(iv) + '</code>');
+
+    log('🔑 Dérivation PBKDF2 (250k itérations)…');
+    const key1 = await deriveKey(pwd, salt);
+    log('✅ Clé dérivée OK', 'ok');
+
+    const ctBuf = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv }, key1, new TextEncoder().encode(plaintext)
+    );
+    const ct = new Uint8Array(ctBuf);
+    log('🔒 Ciphertext len: ' + ct.length + ' bytes (plaintext + 16 bytes tag)', 'ok');
+
+    // ===== ÉTAPE 3 : Assemblage blob =====
+    const out = new Uint8Array(1 + salt.length + iv.length + ct.length);
+    out[0] = VERSION;
+    out.set(salt, 1);
+    out.set(iv, 1 + salt.length);
+    out.set(ct, 1 + salt.length + iv.length);
+
+    let bin = '';
+    for(const b of out) bin += String.fromCharCode(b);
+    const blobB64 = btoa(bin);
+    log('📦 Blob base64 (' + blobB64.length + ' chars):<pre>' + blobB64 + '</pre>');
+
+    // ===== ÉTAPE 4 : Déchiffrement via méthode A (objets directs) =====
+    log('<hr><strong>🔓 TEST A — objets Uint8Array directs</strong>');
+    try {
+      const binA = atob(blobB64);
+      const blobA = new Uint8Array(binA.length);
+      for(let i = 0; i < binA.length; i++) blobA[i] = binA.charCodeAt(i);
+
+      const saltA = blobA.slice(1, 1 + SALT_LENGTH);
+      const ivA = blobA.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+      const ctA = blobA.slice(1 + SALT_LENGTH + IV_LENGTH);
+      log('saltA byteOffset=' + saltA.byteOffset + ' len=' + saltA.length + '<br>ivA byteOffset=' + ivA.byteOffset + ' len=' + ivA.length + '<br>ctA byteOffset=' + ctA.byteOffset + ' len=' + ctA.length, 'info');
+
+      const keyA = await deriveKey(pwd, saltA);
+      const ptA = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivA }, keyA, ctA);
+      log('✅ TEST A OK — déchiffré: <pre>' + new TextDecoder().decode(ptA).substring(0, 80) + '…</pre>', 'ok');
+    } catch(e){
+      log('❌ TEST A ÉCHEC — <code>' + (e.name || '') + ': ' + (e.message || String(e)) + '</code>', 'ko');
+    }
+
+    // ===== ÉTAPE 5 : Déchiffrement via méthode B (ArrayBuffer plats) =====
+    log('<strong>🔓 TEST B — ArrayBuffer plats</strong>');
+    try {
+      const binB = atob(blobB64);
+      const blobB = new Uint8Array(binB.length);
+      for(let i = 0; i < binB.length; i++) blobB[i] = binB.charCodeAt(i);
+
+      const saltB = blobB.slice(1, 1 + SALT_LENGTH);
+      const ivB = blobB.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+      const ctB = blobB.slice(1 + SALT_LENGTH + IV_LENGTH);
+
+      const keyB = await deriveKey(pwd, saltB.buffer);
+      const ptB = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivB.buffer }, keyB, ctB.buffer);
+      log('✅ TEST B OK — déchiffré: <pre>' + new TextDecoder().decode(ptB).substring(0, 80) + '…</pre>', 'ok');
+    } catch(e){
+      log('❌ TEST B ÉCHEC — <code>' + (e.name || '') + ': ' + (e.message || String(e)) + '</code>', 'ko');
+    }
+
+    // ===== ÉTAPE 6 : Déchiffrement avec MDP VOLONTAIREMENT faux =====
+    log('<strong>🔓 TEST C — MDP volontairement faux (doit échouer)</strong>');
+    try {
+      const binC = atob(blobB64);
+      const blobC = new Uint8Array(binC.length);
+      for(let i = 0; i < binC.length; i++) blobC[i] = binC.charCodeAt(i);
+
+      const saltC = blobC.slice(1, 1 + SALT_LENGTH);
+      const ivC = blobC.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+      const ctC = blobC.slice(1 + SALT_LENGTH + IV_LENGTH);
+
+      const keyC = await deriveKey('MAUVAIS_MDP_EXPRES', saltC);
+      const ptC = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivC }, keyC, ctC);
+      log('⚠ Déchiffré avec mauvais MDP (anormal) : <pre>' + new TextDecoder().decode(ptC).substring(0, 40) + '</pre>', 'ko');
+    } catch(e){
+      log('✅ TEST C : mauvais MDP bien rejeté — <code>' + e.name + '</code>', 'ok');
+    }
+
+    log('<hr><strong>🎯 Conclusion</strong>');
+    log('Si TEST A ou B a réussi : la crypto de ton navigateur fonctionne. Le problème est ailleurs (cache, autre blob servi par GitHub, autre MDP tapé dans index.html…).<br>Si TOUS échouent : bug navigateur réel. Essaie un autre navigateur.');
+
+  } catch(e){
+    log('💥 ERREUR GLOBALE : <code>' + e.message + '</code>', 'ko');
+  }
+}
+</script>
+
+</body>
+</html>
