@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catalogue chirurgical — Dr Aiglin</title>
+<meta name="theme-color" content="#0a1f1a">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#061510; --bg:#0a1f1a; --bg-2:#0f2a23; --surface:#133028;
+  --border:#1e4a3c; --border-bright:#2a6b56;
+  --ink:#e8f0ec; --ink-dim:#a8c0b5; --ink-faint:#6b8a7e;
+  --accent:#34d399; --accent-bright:#6ee7b7;
+  --green:#34d399; --green-bg:#0f3d2e;
+  --orange:#f59e0b; --orange-bg:#3d2e0f;
+  --red:#f87171; --red-bg:#3d1515;
+  --blue:#60a5fa; --blue-bg:#1e3a5f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter Tight',-apple-system,sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(52,211,153,0.08),transparent),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(4,120,87,0.12),transparent),linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);
+  background-attachment:fixed;
+  color:var(--ink); min-height:100vh;
+  padding:24px 20px;
+  padding-bottom:env(safe-area-inset-bottom,24px);
+  padding-top:max(24px,env(safe-area-inset-top));
+  letter-spacing:-0.005em;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0.35;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.25 0 0 0 0 0.22 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.container{max-width:960px;margin:0 auto;position:relative;z-index:1}
+
+.gate{min-height:70vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;padding:40px 20px}
+.gate-logo{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(2rem,7vw,3.4rem);line-height:1;letter-spacing:-0.035em;font-variation-settings:"opsz" 96;text-align:center}
+.gate-logo em{font-style:italic;color:var(--accent-bright);font-weight:300}
+.gate-sub{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.2em;text-align:center}
+.gate-form{display:flex;flex-direction:column;gap:12px;width:100%;max-width:340px}
+.gate-form input{padding:14px 16px;background:var(--bg-deep);color:var(--ink);border:1px solid var(--border);border-radius:3px;font-size:0.95rem;font-family:'JetBrains Mono',monospace;text-align:center;letter-spacing:0.08em;transition:all 0.2s}
+.gate-form input:focus{outline:none;border-color:var(--accent);background:var(--bg-2);box-shadow:0 0 0 3px rgba(52,211,153,0.12)}
+.gate-form button{padding:14px;background:var(--accent);color:var(--bg-deep);border:none;border-radius:3px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter Tight',sans-serif;letter-spacing:0.12em;text-transform:uppercase;transition:all 0.2s}
+.gate-form button:hover{background:var(--accent-bright)}
+.gate-form button:disabled{opacity:0.6;cursor:wait}
+.gate-err{font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--red);text-align:center;min-height:1em;letter-spacing:0.05em}
+.gate-info{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);text-align:center;letter-spacing:0.05em;margin-top:-4px}
+
+.header{padding:20px 0 36px;border-bottom:1px solid var(--border);margin-bottom:32px;position:relative;padding-right:110px}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.05;letter-spacing:-0.03em;margin-bottom:8px;font-variation-settings:"opsz" 96}
+h1 em{font-style:italic;color:var(--accent-bright);font-weight:300}
+.subtitle{font-size:0.82rem;color:var(--ink-faint);max-width:520px;line-height:1.55}
+.logout{position:absolute;top:0;right:0;padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--ink-faint);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;transition:all 0.2s}
+.logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ============ GLOBAL OVERVIEW ============ */
+.overview{margin-bottom:32px}
+.overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.over-card{padding:16px 18px;border:1px solid var(--border);border-radius:4px;background:linear-gradient(180deg,rgba(19,48,40,0.4),rgba(10,31,26,0.2));backdrop-filter:blur(8px)}
+.over-label{font-family:'JetBrains Mono',monospace;font-size:0.64rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px}
+.over-value{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:400;line-height:1;letter-spacing:-0.02em;color:var(--accent-bright);font-variation-settings:"opsz" 96}
+.over-sub{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);margin-top:4px;letter-spacing:0.04em}
+
+.cat-breakdown{padding:18px 20px;border:1px solid var(--border);border-radius:4px;background:linear-gradient(180deg,rgba(19,48,40,0.3),rgba(10,31,26,0.15))}
+.cat-breakdown-title{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px}
+.cat-row{display:flex;align-items:center;gap:14px;padding:8px 0;border-bottom:1px dashed rgba(42,107,86,0.2)}
+.cat-row:last-child{border-bottom:none}
+.cat-name{flex:0 0 130px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--ink-dim);letter-spacing:0.06em;font-weight:500;text-transform:uppercase}
+.cat-bar-wrap{flex:1;height:8px;background:rgba(15,42,35,0.6);border-radius:2px;overflow:hidden;display:flex}
+.cat-bar-op{background:linear-gradient(90deg,var(--accent),var(--accent-bright));height:100%}
+.cat-bar-asst{background:var(--blue);height:100%;opacity:0.7}
+.cat-count{flex:0 0 auto;font-family:'Fraunces',serif;font-size:1.05rem;color:var(--accent-bright);min-width:36px;text-align:right;font-weight:500}
+.cat-roles{flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);letter-spacing:0.04em;min-width:80px;text-align:right}
+.legend{display:flex;gap:14px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);letter-spacing:0.05em}
+.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.legend-op{background:var(--accent)}
+.legend-asst{background:var(--blue);opacity:0.7}
+
+/* ============ KPIs ============ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px}
+.kpi{padding:18px 20px;border:1px solid var(--border);border-radius:4px;background:linear-gradient(180deg,rgba(19,48,40,0.4),rgba(10,31,26,0.2));backdrop-filter:blur(8px);transition:all 0.2s}
+.kpi:hover{border-color:var(--border-bright)}
+.kpi-label{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:8px}
+.kpi-value{font-family:'Fraunces',serif;font-size:2rem;font-weight:400;line-height:1;letter-spacing:-0.02em;color:var(--accent-bright);font-variation-settings:"opsz" 96}
+.kpi-unit{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--ink-faint);margin-left:6px;letter-spacing:0.05em}
+.kpi-sub{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);margin-top:6px;letter-spacing:0.04em}
+.kpi-note{font-size:0.66rem;color:var(--ink-faint);margin-top:4px;font-style:italic;line-height:1.4}
+
+/* ============ TABS ============ */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;overflow-x:auto;scrollbar-width:thin}
+.tab{padding:10px 18px;background:transparent;border:1px solid transparent;border-bottom:none;border-radius:3px 3px 0 0;color:var(--ink-faint);cursor:pointer;font-family:'Inter Tight',sans-serif;font-size:0.82rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.2s;margin-bottom:-1px;white-space:nowrap}
+.tab:hover{color:var(--ink-dim)}
+.tab.active{color:var(--accent-bright);border-color:var(--border);border-bottom-color:var(--bg);background:linear-gradient(180deg,rgba(52,211,153,0.06),rgba(19,48,40,0.2))}
+.tab-count{display:inline-block;margin-left:6px;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);font-weight:500;letter-spacing:0.04em}
+.tab.active .tab-count{color:var(--accent)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:slideUp 0.3s}
+@keyframes slideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============ SUB-FILTERS ============ */
+.subfilters{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;padding:14px 16px;border:1px solid var(--border);border-radius:4px;background:rgba(15,42,35,0.3)}
+.subfilter-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.subfilter-label{font-family:'JetBrains Mono',monospace;font-size:0.64rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.14em;margin-right:4px}
+.chip{padding:5px 10px;background:var(--bg-deep);border:1px solid var(--border);border-radius:3px;color:var(--ink-dim);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.05em;text-transform:uppercase;transition:all 0.15s;font-weight:500}
+.chip:hover{border-color:var(--border-bright);color:var(--ink)}
+.chip.active{background:var(--accent);color:var(--bg-deep);border-color:var(--accent);font-weight:700}
+
+/* ============ RECORDS ============ */
+.records-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.record-card{padding:18px 20px;border:1px solid var(--border);border-radius:4px;background:linear-gradient(180deg,rgba(19,48,40,0.4),rgba(10,31,26,0.2));position:relative;overflow:hidden}
+.record-card.min{border-left:3px solid var(--green)}
+.record-card.max{border-left:3px solid var(--orange)}
+.record-label{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.record-label .icon{font-family:'Fraunces',serif;font-style:italic;font-size:1rem;font-weight:500}
+.record-card.min .record-label .icon{color:var(--green)}
+.record-card.max .record-label .icon{color:var(--orange)}
+.record-value{font-family:'Fraunces',serif;font-size:2rem;font-weight:400;line-height:1;letter-spacing:-0.02em;color:var(--accent-bright);font-variation-settings:"opsz" 96}
+.record-card.min .record-value{color:#a7f3d0}
+.record-card.max .record-value{color:#fcd34d}
+.record-date{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--ink-faint);margin-top:6px;letter-spacing:0.04em}
+
+.filters{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{padding:8px 14px;background:var(--bg-deep);border:1px solid var(--border);border-radius:3px;color:var(--ink-dim);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.2s;font-weight:500}
+.filter-btn:hover{border-color:var(--border-bright);color:var(--ink)}
+.filter-btn.active{background:var(--accent);color:var(--bg-deep);border-color:var(--accent);font-weight:700}
+
+section.box{margin-bottom:24px;border:1px solid var(--border);border-radius:4px;padding:20px 22px;background:linear-gradient(180deg,rgba(19,48,40,0.3),rgba(10,31,26,0.15));backdrop-filter:blur(8px)}
+.section-title{font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:1.15rem;color:var(--accent-bright);letter-spacing:-0.01em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.section-meta{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);font-style:normal;letter-spacing:0.08em;text-transform:uppercase}
+
+.chart-wrap{position:relative;height:260px;margin-top:4px}
+svg.chart{width:100%;height:100%;display:block;overflow:visible}
+.chart-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-style:italic}
+
+.table-wrap{overflow-x:auto;margin:0 -22px;padding:0 22px}
+table{width:100%;border-collapse:collapse;font-size:0.88rem}
+thead th{font-family:'JetBrains Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-faint);font-weight:600;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border-bright);white-space:nowrap}
+tbody td{padding:12px;border-bottom:1px dashed rgba(42,107,86,0.25);color:var(--ink-dim);font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(52,211,153,0.04)}
+td.date{font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:var(--ink);font-weight:500}
+td.date.undated{color:var(--ink-faint);font-style:italic}
+td.count{font-family:'Fraunces',serif;font-size:1.05rem;color:var(--accent-bright);font-weight:500}
+td.dur{font-family:'JetBrains Mono',monospace;color:var(--ink-dim)}
+td.type-cell{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--ink);letter-spacing:0.04em;font-weight:500}
+td.measured{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--ink-faint)}
+.measured-full{color:var(--green)}
+.measured-partial{color:var(--orange)}
+.measured-none{color:var(--red)}
+.role-badge{display:inline-block;padding:2px 7px;border-radius:2px;font-family:'JetBrains Mono',monospace;font-size:0.64rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:600}
+.role-op{background:rgba(52,211,153,0.12);color:var(--accent-bright);border:1px solid rgba(52,211,153,0.3)}
+.role-asst{background:rgba(96,165,250,0.12);color:#93c5fd;border:1px solid rgba(96,165,250,0.3)}
+
+.histo{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;height:120px;align-items:end;margin-top:8px}
+.histo-bar{background:linear-gradient(180deg,var(--accent-bright),var(--accent));border-radius:2px 2px 0 0;min-height:2px;transition:opacity 0.2s;position:relative}
+.histo-bar:hover{opacity:0.7}
+.histo-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--ink-faint);text-align:center;letter-spacing:0.02em}
+
+.empty{padding:40px 20px;text-align:center;color:var(--ink-faint);font-family:'JetBrains Mono',monospace;font-size:0.82rem;font-style:italic}
+
+.footer{margin-top:48px;padding:28px 0 16px;border-top:1px solid var(--border);text-align:center;position:relative}
+.footer::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:60px;height:1px;background:var(--accent)}
+.signature{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:1.15rem;color:var(--accent-bright);margin-bottom:8px}
+.signature .amp{color:var(--ink-faint);font-weight:300;margin:0 4px}
+.copyright{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px}
+.disclaimer{font-size:0.72rem;color:var(--ink-faint);max-width:520px;margin:0 auto;line-height:1.6;font-style:italic}
+
+@media (max-width:520px){
+  body{padding:16px 14px}
+  section.box{padding:16px 12px}
+  .kpi{padding:14px 16px}
+  .kpi-value{font-size:1.7rem}
+  .over-card{padding:13px 14px}
+  .over-value{font-size:1.5rem}
+  .table-wrap{margin:0 -12px;padding:0 12px}
+  .tab{padding:8px 12px;font-size:0.75rem}
+  .chart-wrap{height:220px}
+  .cat-row{flex-wrap:wrap;gap:8px}
+  .cat-name{flex:0 0 100%}
+  .cat-roles{font-size:0.62rem;min-width:auto}
+}
+</style>
+</head>
+<body>
+
+<div id="gate" class="container gate">
+  <div class="gate-sub">Accès chiffré</div>
+  <div class="gate-logo">Catalogue <em>chirurgical</em></div>
+  <form id="gate-form" class="gate-form" autocomplete="off">
+    <input type="password" id="gate-pwd" placeholder="mot de passe" autocomplete="current-password" autofocus>
+    <button type="submit" id="gate-submit">Déchiffrer</button>
+    <div id="gate-info" class="gate-info"></div>
+    <div id="gate-err" class="gate-err"></div>
+  </form>
+</div>
+
+<div id="app" class="container" style="display:none">
+  <header class="header">
+    <button class="logout" id="logout-btn">Verrouiller</button>
+    <div class="eyebrow">Catalogue chirurgical</div>
+    <h1>Dr <em>Aiglin</em></h1>
+    <p class="subtitle">Registre d'activité opératoire — données chiffrées AES-GCM 256.</p>
+  </header>
+
+  <!-- VUE GLOBALE -->
+  <section class="overview" id="overview"></section>
+
+  <!-- ONGLETS PAR CATÉGORIE -->
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div id="panels"></div>
+
+  <footer class="footer">
+    <div class="signature">Dr <span class="amp">·</span> Aiglin</div>
+    <div class="copyright">© 2026 — Tous droits réservés</div>
+    <p class="disclaimer">Registre d'activité personnel. Données non nominatives, stockées chiffrées (AES-GCM 256 · PBKDF2 250k).</p>
+  </footer>
+</div>
+
+<script>
+'use strict';
+
+// ==========================================================================
+// CHIFFREMENT (compatibilité avec le format existant)
+// ==========================================================================
+
+const PBKDF2_ITERATIONS = 250000;
+const SALT_LENGTH = 16;
+const IV_LENGTH = 12;
+const VERSION = 1;
+
+async function deriveKey(password, salt){
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey(
+    'raw', enc.encode(password),
+    { name: 'PBKDF2' }, false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
+    baseKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+
+function base64ToBytes(b64){
+  let clean = b64.replace(/[\s\u200B-\u200D\uFEFF]/g, '').replace(/-/g, '+').replace(/_/g, '/');
+  while(clean.length % 4) clean += '=';
+  const bin = atob(clean);
+  const out = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function decryptBlob(blobB64, password){
+  const blob = base64ToBytes(blobB64);
+  if(blob.length < 1 + SALT_LENGTH + IV_LENGTH + 16) throw new Error('blob trop court');
+  if(blob[0] !== VERSION) throw new Error('version non supportée');
+  const salt = blob.slice(1, 1 + SALT_LENGTH);
+  const iv = blob.slice(1 + SALT_LENGTH, 1 + SALT_LENGTH + IV_LENGTH);
+  const ct = blob.slice(1 + SALT_LENGTH + IV_LENGTH);
+  const key = await deriveKey(password, salt);
+  const ivBuf = iv.slice().buffer;
+  const ctBuf = ct.slice().buffer;
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: ivBuf }, key, ctBuf);
+  return new TextDecoder().decode(pt);
+}
+
+// ==========================================================================
+// ÉTAT GLOBAL
+// ==========================================================================
+
+let ACTS = [];              // tableau plat d'actes (schéma v3)
+let CACHED_BLOB = null;
+let CURRENT_CAT = null;     // catégorie active
+const SUBFILTERS = {};      // SUBFILTERS[cat] = { type: 'all'|str, role: 'all'|'1er_operateur'|'assistant', period: 'all'|'7'|... }
+
+// ==========================================================================
+// CHARGEMENT + NORMALISATION (compat v1 → v3)
+// ==========================================================================
+
+async function fetchBlob(){
+  if(CACHED_BLOB) return CACHED_BLOB;
+  const bust = Date.now() + '-' + Math.random().toString(36).slice(2);
+  // Cherche dans l'ordre : chirurgie.enc/json (v3), ivt.enc/json (legacy v1)
+  const candidates = ['./data/chirurgie.enc', './data/chirurgie.json', './data/ivt.enc', './data/ivt.json'];
+  let res = null, usedUrl = null;
+  for(const path of candidates){
+    const url = path + '?v=' + bust;
+    try {
+      const r = await fetch(url, { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
+      if(r.ok){ res = r; usedUrl = path; break; }
+    } catch(_){}
+  }
+  if(!res) throw new Error('HTTP 404 — aucun fichier data/ trouvé');
+  console.log('[CAT] Fichier lu:', usedUrl);
+  let raw = await res.text();
+  raw = raw.replace(/^\uFEFF/, '');
+
+  // Détection automatique : JSON clair vs blob chiffré base64
+  const trimmed = raw.trim();
+  if(trimmed.startsWith('{') || trimmed.startsWith('[')){
+    // JSON clair — pas de chiffrement
+    CACHED_BLOB = { type: 'plain', content: trimmed };
+  } else {
+    // Blob chiffré (ou wrapper { "blob": "..." })
+    let blob = trimmed.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+    if(blob.startsWith('{')){
+      try { const p = JSON.parse(blob); if(p.blob) blob = p.blob.replace(/[\s\u200B-\u200D\uFEFF]/g, ''); } catch(_){}
+    }
+    if(blob.length < 50) throw new Error('blob trop court (' + blob.length + ' chars)');
+    CACHED_BLOB = { type: 'encrypted', content: blob };
+  }
+  return CACHED_BLOB;
+}
+
+function normalizeSchema(parsed){
+  // Schéma v3 : { _schema:{version:3}, data: [ {date,type,categorie,role,count,...} ] }
+  if(Array.isArray(parsed.data)){
+    return parsed.data.map(act => ({
+      date: act.date || null,
+      type: act.type || 'IVT',
+      categorie: act.categorie || 'INJECTION',
+      role: act.role || '1er_operateur',
+      count: act.count || 0,
+      durations_seconds: act.durations_seconds || [],
+      lieu: act.lieu || null,
+      protocole: act.protocole || null,
+      notes: act.notes || null,
+      complications: act.complications || []
+    }));
+  }
+  // Schéma v1 legacy : { data: { "YYYY-MM-DD": {count, durations_seconds} } }
+  if(parsed.data && typeof parsed.data === 'object'){
+    return Object.entries(parsed.data).map(([date, v]) => ({
+      date,
+      type: 'IVT',
+      categorie: 'INJECTION',
+      role: '1er_operateur',
+      count: v.count || 0,
+      durations_seconds: v.durations_seconds || [],
+      lieu: null, protocole: null, notes: null, complications: []
+    }));
+  }
+  throw new Error('Schéma inconnu');
+}
+
+async function tryUnlock(pwd){
+  const blobInfo = await fetchBlob();
+  let jsonText;
+  if(blobInfo.type === 'plain'){
+    jsonText = blobInfo.content;
+  } else {
+    jsonText = await decryptBlob(blobInfo.content, pwd);
+  }
+  const parsed = JSON.parse(jsonText);
+  ACTS = normalizeSchema(parsed);
+  console.log('[CAT] Chargé:', ACTS.length, 'entrées');
+}
+
+// ==========================================================================
+// UTILITAIRES
+// ==========================================================================
+
+function median(arr){
+  if(!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const m = Math.floor(s.length/2);
+  return s.length % 2 ? s[m] : (s[m-1]+s[m])/2;
+}
+function mean(arr){ return arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null; }
+function stdev(arr){
+  if(arr.length < 2) return null;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2, 0) / (arr.length - 1));
+}
+function quartiles(arr){
+  if(arr.length < 2) return [null, null];
+  const s = [...arr].sort((a,b)=>a-b);
+  const q = (p) => { const idx = p*(s.length-1); const lo = Math.floor(idx), hi = Math.ceil(idx); return s[lo] + (s[hi]-s[lo])*(idx-lo); };
+  return [q(0.25), q(0.75)];
+}
+function fmtDuration(sec){
+  if(sec == null || isNaN(sec)) return '—';
+  const m = Math.floor(sec/60);
+  const s = Math.round(sec % 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function fmtDate(iso){
+  if(!iso) return '— non daté —';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y.slice(2)}`;
+}
+
+function actsByCategory(){
+  const byCat = {};
+  ACTS.forEach(a => {
+    if(!byCat[a.categorie]) byCat[a.categorie] = [];
+    byCat[a.categorie].push(a);
+  });
+  return byCat;
+}
+
+function applyPeriod(acts, period){
+  if(period === 'all') return acts;
+  const days = parseInt(period, 10);
+  if(isNaN(days)) return acts;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+  // Les actes non datés sont exclus quand on filtre par période
+  return acts.filter(a => a.date && a.date >= cutoffStr);
+}
+
+function applyFilters(acts, cat){
+  const f = SUBFILTERS[cat] || {};
+  let res = acts;
+  if(f.type && f.type !== 'all') res = res.filter(a => a.type === f.type);
+  if(f.role && f.role !== 'all') res = res.filter(a => a.role === f.role);
+  if(f.period && f.period !== 'all') res = applyPeriod(res, f.period);
+  return res;
+}
+
+// Tri : non datés EN TÊTE (antérieurs), puis dates croissantes
+function sortChronological(acts){
+  return [...acts].sort((a, b) => {
+    if(a.date == null && b.date == null) return 0;
+    if(a.date == null) return -1;
+    if(b.date == null) return 1;
+    return a.date.localeCompare(b.date);
+  });
+}
+
+// ==========================================================================
+// RENDU : VUE GLOBALE
+// ==========================================================================
+
+function renderOverview(){
+  const totalActs = ACTS.reduce((s,a) => s + a.count, 0);
+  const totalOp = ACTS.filter(a => a.role === '1er_operateur').reduce((s,a) => s + a.count, 0);
+  const totalAsst = ACTS.filter(a => a.role === 'assistant').reduce((s,a) => s + a.count, 0);
+  const allDurs = ACTS.flatMap(a => a.durations_seconds);
+  const datesArr = ACTS.filter(a => a.date).map(a => a.date).sort();
+  const periodStr = datesArr.length ? `${fmtDate(datesArr[0])} → ${fmtDate(datesArr[datesArr.length-1])}` : '—';
+  const categories = Object.keys(actsByCategory());
+
+  const cards = [
+    { label: 'Total actes', value: totalActs, sub: `${categories.length} catégorie${categories.length>1?'s':''}` },
+    { label: '1er opérateur', value: totalOp, sub: totalActs ? `${Math.round(totalOp/totalActs*100)}% du total` : '—' },
+    { label: 'Assistant', value: totalAsst, sub: totalActs ? `${Math.round(totalAsst/totalActs*100)}% du total` : '—' },
+    { label: 'Chronométrés', value: allDurs.length, sub: 'gestes mesurés' },
+    { label: 'Période', value: datesArr.length ? `${datesArr.length}` : '—', sub: 'jours actifs', extraSub: periodStr }
+  ];
+
+  // Breakdown par catégorie
+  const byCat = actsByCategory();
+  const catRows = Object.entries(byCat)
+    .map(([cat, acts]) => {
+      const total = acts.reduce((s,a) => s + a.count, 0);
+      const op = acts.filter(a => a.role === '1er_operateur').reduce((s,a) => s + a.count, 0);
+      const asst = acts.filter(a => a.role === 'assistant').reduce((s,a) => s + a.count, 0);
+      return { cat, total, op, asst };
+    })
+    .sort((a,b) => b.total - a.total);
+
+  const maxTotal = Math.max(1, ...catRows.map(r => r.total));
+
+  const catHtml = catRows.map(r => {
+    const opPct = (r.op / maxTotal) * 100;
+    const asstPct = (r.asst / maxTotal) * 100;
+    return `
+      <div class="cat-row">
+        <div class="cat-name">${r.cat}</div>
+        <div class="cat-bar-wrap">
+          <div class="cat-bar-op" style="width:${opPct}%"></div>
+          <div class="cat-bar-asst" style="width:${asstPct}%"></div>
+        </div>
+        <div class="cat-roles">${r.op}·op / ${r.asst}·as</div>
+        <div class="cat-count">${r.total}</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('overview').innerHTML = `
+    <div class="overview-grid">
+      ${cards.map(c => `
+        <div class="over-card">
+          <div class="over-label">${c.label}</div>
+          <div class="over-value">${c.value}</div>
+          <div class="over-sub">${c.sub}</div>
+          ${c.extraSub ? `<div class="over-sub" style="margin-top:2px">${c.extraSub}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+    <div class="cat-breakdown">
+      <div class="cat-breakdown-title">Répartition par catégorie</div>
+      ${catHtml || '<div class="empty">Aucune donnée</div>'}
+      <div class="legend">
+        <span><span class="legend-dot legend-op"></span>1er opérateur</span>
+        <span><span class="legend-dot legend-asst"></span>Assistant</span>
+      </div>
+    </div>
+  `;
+}
+
+// ==========================================================================
+// RENDU : ONGLETS ET PANNEAUX
+// ==========================================================================
+
+function renderTabs(){
+  const byCat = actsByCategory();
+  const cats = Object.keys(byCat).sort((a,b) => {
+    // Ordre préférentiel : INJECTION en premier, autres après
+    const order = ['INJECTION','RETINE','SEGMENT_ANT','GLAUCOME','REFRACTIVE','OCULOPLASTIE'];
+    const ia = order.indexOf(a), ib = order.indexOf(b);
+    if(ia >= 0 && ib >= 0) return ia - ib;
+    if(ia >= 0) return -1;
+    if(ib >= 0) return 1;
+    return a.localeCompare(b);
+  });
+
+  if(!CURRENT_CAT || !cats.includes(CURRENT_CAT)) CURRENT_CAT = cats[0];
+
+  // Init SUBFILTERS pour chaque cat
+  cats.forEach(c => {
+    if(!SUBFILTERS[c]) SUBFILTERS[c] = { type: 'all', role: 'all', period: 'all' };
+  });
+
+  // Onglets
+  const tabsHtml = cats.map(cat => {
+    const total = byCat[cat].reduce((s,a) => s + a.count, 0);
+    return `<button class="tab ${cat===CURRENT_CAT?'active':''}" data-cat="${cat}" role="tab">
+      ${cat}<span class="tab-count">${total}</span>
+    </button>`;
+  }).join('');
+  document.getElementById('tabs').innerHTML = tabsHtml;
+
+  // Panneaux
+  const panelsHtml = cats.map(cat => `
+    <section class="tab-panel ${cat===CURRENT_CAT?'active':''}" data-panel="${cat}" id="panel-${cat}"></section>
+  `).join('');
+  document.getElementById('panels').innerHTML = panelsHtml;
+
+  // Listeners onglets
+  document.querySelectorAll('#tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      CURRENT_CAT = t.dataset.cat;
+      document.querySelectorAll('#tabs .tab').forEach(x => x.classList.toggle('active', x.dataset.cat === CURRENT_CAT));
+      document.querySelectorAll('#panels .tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === CURRENT_CAT));
+      renderPanel(CURRENT_CAT);
+    });
+  });
+
+  // Rendu du panel actif
+  cats.forEach(c => renderPanel(c));
+}
+
+function renderPanel(cat){
+  const allActs = actsByCategory()[cat] || [];
+  const filtered = applyFilters(allActs, cat);
+  const f = SUBFILTERS[cat];
+
+  // Types disponibles dans cette catégorie
+  const typesInCat = [...new Set(allActs.map(a => a.type))].sort();
+  // Rôles disponibles dans cette catégorie
+  const rolesInCat = [...new Set(allActs.map(a => a.role))];
+
+  // Sous-filtres HTML
+  const typeChips = typesInCat.length > 1
+    ? `<div class="subfilter-group">
+         <span class="subfilter-label">Type</span>
+         <button class="chip ${f.type==='all'?'active':''}" data-sf="type" data-val="all">Tous</button>
+         ${typesInCat.map(t => `<button class="chip ${f.type===t?'active':''}" data-sf="type" data-val="${t}">${t}</button>`).join('')}
+       </div>` : '';
+
+  const roleChips = rolesInCat.length > 1
+    ? `<div class="subfilter-group">
+         <span class="subfilter-label">Rôle</span>
+         <button class="chip ${f.role==='all'?'active':''}" data-sf="role" data-val="all">Tous</button>
+         <button class="chip ${f.role==='1er_operateur'?'active':''}" data-sf="role" data-val="1er_operateur">1er op.</button>
+         <button class="chip ${f.role==='assistant'?'active':''}" data-sf="role" data-val="assistant">Assistant</button>
+       </div>` : '';
+
+  const periodChips = `
+    <div class="subfilter-group">
+      <span class="subfilter-label">Période</span>
+      <button class="chip ${f.period==='30'?'active':''}" data-sf="period" data-val="30">30j</button>
+      <button class="chip ${f.period==='90'?'active':''}" data-sf="period" data-val="90">90j</button>
+      <button class="chip ${f.period==='365'?'active':''}" data-sf="period" data-val="365">1 an</button>
+      <button class="chip ${f.period==='all'?'active':''}" data-sf="period" data-val="all">Tout</button>
+    </div>`;
+
+  const hasSubfilters = typeChips || roleChips;
+  const subfiltersHtml = (hasSubfilters || true) ? `
+    <div class="subfilters">
+      ${typeChips}
+      ${roleChips}
+      ${periodChips}
+    </div>` : '';
+
+  // ===== KPIs =====
+  const totalCount = filtered.reduce((s,a) => s + a.count, 0);
+  const datedActs = filtered.filter(a => a.date);
+  const undatedActs = filtered.filter(a => !a.date);
+  const daysActive = new Set(datedActs.map(a => a.date)).size;
+  const allDurs = filtered.flatMap(a => a.durations_seconds);
+  const med = median(allDurs);
+  const avg = mean(allDurs);
+  const sd = stdev(allDurs);
+  const [q1, q3] = quartiles(allDurs);
+
+  const kpis = [
+    {
+      label: 'Actes',
+      value: totalCount,
+      sub: `${daysActive} jour${daysActive>1?'s':''} actif${daysActive>1?'s':''}${undatedActs.length ? ' · ' + undatedActs.reduce((s,a)=>s+a.count,0) + ' non daté(s)' : ''}`
+    },
+    {
+      label: 'Médiane / geste',
+      value: med != null ? fmtDuration(med) : '—',
+      unit: med != null ? 'min' : '',
+      sub: `n = ${allDurs.length}`,
+      note: allDurs.length ? 'temps total en stérile' : 'aucun geste chronométré'
+    },
+    {
+      label: 'Moyenne ± σ',
+      value: avg != null ? fmtDuration(avg) : '—',
+      sub: sd != null ? `σ = ${Math.round(sd)} s` : ''
+    },
+    {
+      label: 'Volume / jour actif',
+      value: daysActive > 0 ? (datedActs.reduce((s,a)=>s+a.count,0)/daysActive).toFixed(1) : '—',
+      sub: daysActive > 0 ? `actes datés / ${daysActive} jour${daysActive>1?'s':''}` : ''
+    }
+  ];
+  const kpisHtml = `<div class="kpi-grid">${kpis.map(k => `
+    <div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}${k.unit?`<span class="kpi-unit">${k.unit}</span>`:''}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      ${k.note ? `<div class="kpi-note">${k.note}</div>` : ''}
+    </div>`).join('')}</div>`;
+
+  // ===== Records (durée min/max) =====
+  let minRec = null, maxRec = null;
+  filtered.forEach(a => {
+    a.durations_seconds.forEach(d => {
+      if(minRec === null || d < minRec.value) minRec = { value: d, date: a.date, type: a.type };
+      if(maxRec === null || d > maxRec.value) maxRec = { value: d, date: a.date, type: a.type };
+    });
+  });
+  const recordsHtml = (minRec && maxRec) ? `
+    <section class="box">
+      <div class="section-title"><span>Records de durée</span><span class="section-meta">sur ${allDurs.length} geste${allDurs.length>1?'s':''} chronométré${allDurs.length>1?'s':''}</span></div>
+      <div class="records-grid">
+        <div class="record-card min">
+          <div class="record-label"><span class="icon">↓</span> Meilleur temps</div>
+          <div class="record-value">${fmtDuration(minRec.value)}</div>
+          <div class="record-date">${fmtDate(minRec.date)} · ${minRec.type}</div>
+        </div>
+        <div class="record-card max">
+          <div class="record-label"><span class="icon">↑</span> Plus long</div>
+          <div class="record-value">${fmtDuration(maxRec.value)}</div>
+          <div class="record-date">${fmtDate(maxRec.date)} · ${maxRec.type}</div>
+        </div>
+      </div>
+    </section>` : '';
+
+  // ===== Chart volume par jour (datés seulement) =====
+  const datedByDay = {};
+  datedActs.forEach(a => {
+    if(!datedByDay[a.date]) datedByDay[a.date] = 0;
+    datedByDay[a.date] += a.count;
+  });
+  const chartEntries = Object.entries(datedByDay).sort(([a],[b]) => a.localeCompare(b));
+  const chartHtml = `
+    <section class="box">
+      <div class="section-title"><span>Volume par jour</span><span class="section-meta" id="chart-meta-${cat}"></span></div>
+      <div class="chart-wrap" id="chart-${cat}"></div>
+    </section>`;
+
+  // ===== Histogramme durées =====
+  const histoHtml = allDurs.length >= 3 ? `
+    <section class="box">
+      <div class="section-title"><span>Distribution des durées</span><span class="section-meta">n = ${allDurs.length} · Q1 ${q1 != null ? fmtDuration(q1) : '—'} · Q3 ${q3 != null ? fmtDuration(q3) : '—'}</span></div>
+      <div id="histo-${cat}"></div>
+    </section>` : '';
+
+  // ===== Journal =====
+  const journalRows = sortChronological(filtered).reverse().map(a => {
+    const durs = a.durations_seconds;
+    const m = median(durs);
+    const minMax = durs.length ? `${fmtDuration(Math.min(...durs))} – ${fmtDuration(Math.max(...durs))}` : '—';
+    const rate = a.count > 0 ? (durs.length / a.count) : 0;
+    const rateClass = rate >= 1 ? 'measured-full' : (rate > 0 ? 'measured-partial' : 'measured-none');
+    const ratePct = a.count > 0 ? Math.round(rate*100) : 0;
+    const roleClass = a.role === '1er_operateur' ? 'role-op' : 'role-asst';
+    const roleLabel = a.role === '1er_operateur' ? '1er op.' : 'asst.';
+    const dateClass = a.date ? 'date' : 'date undated';
+    const notesStr = a.notes ? ` <span style="color:var(--ink-faint);font-size:0.75rem;font-style:italic">· ${a.notes}</span>` : '';
+    return `<tr>
+      <td class="${dateClass}">${fmtDate(a.date)}</td>
+      <td class="type-cell">${a.type}${notesStr}</td>
+      <td><span class="role-badge ${roleClass}">${roleLabel}</span></td>
+      <td class="count">${a.count}</td>
+      <td class="dur">${m != null ? fmtDuration(m) : '—'}</td>
+      <td class="dur">${minMax}</td>
+      <td class="measured ${rateClass}">${durs.length}/${a.count}${a.count>0?` · ${ratePct}%`:''}</td>
+    </tr>`;
+  }).join('');
+
+  const journalHtml = `
+    <section class="box">
+      <div class="section-title"><span>Journal</span><span class="section-meta">${filtered.length} entrée${filtered.length>1?'s':''}</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Rôle</th><th>Nb</th><th>Médiane</th><th>Min–Max</th><th>Mesurés</th></tr></thead>
+          <tbody>${journalRows || '<tr><td colspan="7" class="empty">Aucune donnée</td></tr>'}</tbody>
+        </table>
+      </div>
+    </section>`;
+
+  // Assemblage
+  const panel = document.getElementById('panel-' + cat);
+  panel.innerHTML = subfiltersHtml + kpisHtml + recordsHtml + chartHtml + histoHtml + journalHtml;
+
+  // Listeners chips
+  panel.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const sf = chip.dataset.sf;
+      const val = chip.dataset.val;
+      SUBFILTERS[cat][sf] = val;
+      renderPanel(cat);
+    });
+  });
+
+  // Rendu chart + histo (post-DOM)
+  if(chartEntries.length){
+    renderVolumeChart(cat, chartEntries);
+  } else {
+    document.getElementById('chart-' + cat).innerHTML = '<div class="chart-empty">Aucun jour daté sur la sélection</div>';
+  }
+  if(allDurs.length >= 3){
+    renderHistogram(cat, allDurs);
+  }
+}
+
+// ==========================================================================
+// CHART VOLUME (par jour)
+// ==========================================================================
+
+function renderVolumeChart(cat, entries){
+  const container = document.getElementById('chart-' + cat);
+  const metaEl = document.getElementById('chart-meta-' + cat);
+  if(!container) return;
+
+  const containerW = container.clientWidth || 720;
+  const isMobile = containerW < 520;
+  const W = Math.max(320, containerW);
+  const H = isMobile ? 220 : 260;
+  const P = isMobile ? { top: 24, right: 12, bottom: 36, left: 32 } : { top: 26, right: 20, bottom: 36, left: 40 };
+  const innerW = W - P.left - P.right, innerH = H - P.top - P.bottom;
+  const maxCount = Math.max(1, ...entries.map(([,c]) => c));
+  const yMax = Math.ceil(maxCount * 1.18);
+
+  const fsAxis = isMobile ? 11 : 10;
+  const fsXLabel = isMobile ? 11 : 10;
+  const fsPoint = isMobile ? 13 : 12;
+  const ptRadius = isMobile ? 5 : 4.5;
+  const ptHalo = isMobile ? 10 : 8;
+
+  const xFor = (i) => entries.length === 1 ? P.left + innerW/2 : P.left + (i / (entries.length - 1)) * innerW;
+  const yFor = (v) => P.top + innerH - (v / yMax) * innerH;
+
+  const pathD = entries.map(([,c], i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(1)} ${yFor(c).toFixed(1)}`).join(' ');
+
+  const points = entries.map(([date, c], i) => {
+    const x = xFor(i), y = yFor(c);
+    return `
+      <circle cx="${x}" cy="${y}" r="${ptHalo}" fill="rgba(52,211,153,0.12)" />
+      <circle cx="${x}" cy="${y}" r="${ptRadius}" fill="#34d399" stroke="#0a1f1a" stroke-width="2">
+        <title>${fmtDate(date)} — ${c} acte${c>1?'s':''}</title>
+      </circle>
+      <text x="${x}" y="${y - ptHalo - 4}" text-anchor="middle" fill="#6ee7b7" font-family="Fraunces, serif" font-size="${fsPoint}" font-weight="500">${c}</text>
+    `;
+  }).join('');
+
+  const tickStep = yMax <= 5 ? 1 : (yMax <= 10 ? 2 : (yMax <= 30 ? 5 : 10));
+  const yTicks = [];
+  for(let t = 0; t <= yMax; t += tickStep) yTicks.push(t);
+  const yGrid = yTicks.map(v => {
+    const y = yFor(v);
+    return `<g><line x1="${P.left}" y1="${y}" x2="${W-P.right}" y2="${y}" stroke="rgba(42,107,86,0.18)" stroke-dasharray="2 3"/><text x="${P.left-8}" y="${y+3}" text-anchor="end" fill="#6b8a7e" font-family="JetBrains Mono,monospace" font-size="${fsAxis}">${v}</text></g>`;
+  }).join('');
+
+  const fmtX = isMobile
+    ? (iso) => { const [,m,d] = iso.split('-'); return `${d}/${m}`; }
+    : fmtDate;
+
+  let xLabelsHtml;
+  if(entries.length === 1){
+    xLabelsHtml = `<text x="${xFor(0)}" y="${H-12}" text-anchor="middle" fill="#6b8a7e" font-family="JetBrains Mono,monospace" font-size="${fsXLabel}">${fmtX(entries[0][0])}</text>`;
+  } else {
+    const minGap = isMobile ? 55 : 75;
+    const labelIndexes = new Set([0, entries.length - 1]);
+    let lastX = xFor(0);
+    for(let i = 1; i < entries.length - 1; i++){
+      const x = xFor(i);
+      if(x - lastX >= minGap && xFor(entries.length-1) - x >= minGap){
+        labelIndexes.add(i);
+        lastX = x;
+      }
+    }
+    xLabelsHtml = entries.map(([date], i) => {
+      if(!labelIndexes.has(i)) return '';
+      const x = xFor(i);
+      const anchor = i === 0 ? 'start' : (i === entries.length-1 ? 'end' : 'middle');
+      return `<text x="${x}" y="${H-12}" text-anchor="${anchor}" fill="#6b8a7e" font-family="JetBrains Mono,monospace" font-size="${fsXLabel}">${fmtX(date)}</text>`;
+    }).join('');
+  }
+
+  const lineHtml = entries.length >= 2
+    ? `<path d="${pathD}" fill="none" stroke="url(#lineGrad-${cat})" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`
+    : '';
+
+  container.innerHTML = `
+    <svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lineGrad-${cat}" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#34d399"/>
+        </linearGradient>
+      </defs>
+      ${yGrid}
+      ${lineHtml}
+      ${points}
+      ${xLabelsHtml}
+    </svg>
+  `;
+  if(metaEl) metaEl.textContent = `${entries.length} jour${entries.length>1?'s':''} · max ${maxCount}/j`;
+}
+
+// ==========================================================================
+// HISTOGRAMME DURÉES
+// ==========================================================================
+
+function renderHistogram(cat, durs){
+  const container = document.getElementById('histo-' + cat);
+  if(!container) return;
+  const min = Math.min(...durs);
+  const max = Math.max(...durs);
+  const nBins = 12;
+  const span = Math.max(1, max - min);
+  const binSize = span / nBins;
+  const bins = new Array(nBins).fill(0);
+  durs.forEach(d => {
+    let idx = Math.floor((d - min) / binSize);
+    if(idx >= nBins) idx = nBins - 1;
+    if(idx < 0) idx = 0;
+    bins[idx]++;
+  });
+  const maxBin = Math.max(...bins);
+  const bars = bins.map((n, i) => {
+    const h = (n / maxBin) * 100;
+    const lo = min + i * binSize;
+    const hi = min + (i+1) * binSize;
+    return `<div class="histo-bar" style="height:${h}%" title="${fmtDuration(lo)} – ${fmtDuration(hi)} : ${n}"></div>`;
+  }).join('');
+  const labels = bins.map((_, i) => {
+    if(i === 0 || i === nBins - 1 || i === Math.floor(nBins/2)){
+      const v = min + i * binSize;
+      return `<div>${fmtDuration(v)}</div>`;
+    }
+    return '<div></div>';
+  }).join('');
+  container.innerHTML = `<div class="histo">${bars}</div><div class="histo-labels">${labels}</div>`;
+}
+
+// ==========================================================================
+// LIFECYCLE
+// ==========================================================================
+
+function showApp(){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderOverview();
+  renderTabs();
+}
+
+function lock(){
+  ACTS = [];
+  CACHED_BLOB = null;
+  location.reload();
+}
+
+document.getElementById('gate-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const pwd = document.getElementById('gate-pwd').value;
+  const errEl = document.getElementById('gate-err');
+  const infoEl = document.getElementById('gate-info');
+  const btn = document.getElementById('gate-submit');
+  errEl.textContent = '';
+  // Pré-check : si le blob est en clair, on accepte sans mdp
+  const blob = await fetchBlob().catch(err => { errEl.textContent = err.message; return null; });
+  if(!blob) return;
+  if(blob.type === 'plain'){
+    try {
+      const parsed = JSON.parse(blob.content);
+      ACTS = normalizeSchema(parsed);
+      showApp();
+      return;
+    } catch(e){
+      errEl.textContent = 'JSON invalide';
+      return;
+    }
+  }
+  if(!pwd){ errEl.textContent = 'Mot de passe requis'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Déchiffrement…';
+  infoEl.textContent = 'dérivation PBKDF2 × 250 000…';
+  try {
+    await tryUnlock(pwd);
+    infoEl.textContent = '';
+    showApp();
+  } catch(err){
+    const msg = err && err.message ? err.message : String(err);
+    if(msg.includes('HTTP')) errEl.textContent = msg;
+    else if(msg.includes('trop court') || msg.includes('version')) errEl.textContent = 'Fichier invalide (' + msg + ')';
+    else if(msg.includes('atob') || msg.includes('InvalidCharacterError')) errEl.textContent = 'Blob corrompu — caractères base64 invalides';
+    else errEl.textContent = 'MDP incorrect ou blob altéré (voir console)';
+    console.error('[CAT] Unlock failed:', err);
+    document.getElementById('gate-pwd').value = '';
+    btn.disabled = false;
+    btn.textContent = 'Déchiffrer';
+    infoEl.textContent = '';
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', lock);
+
+// Re-render charts on resize
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if(ACTS.length && CURRENT_CAT) renderPanel(CURRENT_CAT);
+  }, 200);
+});
+</script>
+</body>
+</html>
