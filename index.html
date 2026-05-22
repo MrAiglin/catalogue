@@ -611,49 +611,80 @@ function renderCumulativeChart(){
   const isMobile = containerW < 520;
   const W = Math.max(320, containerW);
   const H = isMobile ? 240 : 280;
-  const P = isMobile ? { top: 24, right: 14, bottom: 36, left: 38 } : { top: 28, right: 24, bottom: 36, left: 48 };
+  // Padding droit augmenté pour accueillir le 2e axe Y
+  const P = isMobile ? { top: 24, right: 38, bottom: 36, left: 38 } : { top: 28, right: 52, bottom: 36, left: 48 };
   const innerW = W - P.left - P.right, innerH = H - P.top - P.bottom;
 
-  // Y max — basé sur les séries visibles
-  let visibleMax = 0;
-  if(CUM_TOGGLES.injections) visibleMax = Math.max(visibleMax, injSeries[injSeries.length-1] || 0);
-  if(CUM_TOGGLES.chirurgies) visibleMax = Math.max(visibleMax, chirSeries[chirSeries.length-1] || 0);
-  if(visibleMax === 0) visibleMax = 1;
-  const yMax = Math.ceil(visibleMax * 1.15 / 10) * 10 || 10;
+  // Échelles indépendantes — chaque série a son propre max
+  const niceMax = (v) => {
+    if(v <= 0) return 1;
+    const step = v <= 5 ? 1 : (v <= 20 ? 5 : (v <= 60 ? 10 : (v <= 150 ? 25 : 50)));
+    return Math.ceil(v * 1.15 / step) * step;
+  };
+  const injTotalRaw = injSeries[injSeries.length-1] || 0;
+  const chirTotalRaw = chirSeries[chirSeries.length-1] || 0;
+  const yInjMax = niceMax(injTotalRaw);
+  const yChirMax = niceMax(chirTotalRaw);
 
   const fsAxis = isMobile ? 10 : 10;
   const fsXLabel = isMobile ? 10 : 10;
 
   const xFor = (i) => months.length === 1 ? P.left + innerW/2 : P.left + (i/(months.length-1)) * innerW;
-  const yFor = (v) => P.top + innerH - (v/yMax) * innerH;
+  const yForInj = (v) => P.top + innerH - (v/yInjMax) * innerH;
+  const yForChir = (v) => P.top + innerH - (v/yChirMax) * innerH;
 
-  // Path builder pour une série
-  const buildPath = (series) => series.map((v, i) => `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFor(v).toFixed(1)}`).join(' ');
+  // Path builder paramétré par la fonction Y
+  const buildPath = (series, yFn) => series.map((v, i) => `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFn(v).toFixed(1)}`).join(' ');
 
   // Points + valeur finale
-  const buildPoints = (series, color, finalColor) => {
+  const buildPoints = (series, yFn, color, finalColor, finalAnchor) => {
     return series.map((v, i) => {
-      const x = xFor(i), y = yFor(v);
+      const x = xFor(i), y = yFn(v);
       const isLast = i === series.length - 1;
       const r = isLast ? (isMobile ? 4.5 : 4) : (isMobile ? 3 : 2.5);
-      const label = isLast && v > 0 ? `<text x="${x}" y="${y - 10}" text-anchor="${i === series.length-1 ? 'end' : 'middle'}" fill="${finalColor}" font-family="Fraunces, serif" font-size="${isMobile?13:12}" font-weight="500">${v}</text>` : '';
+      const label = isLast && v > 0 ? `<text x="${x}" y="${y - 10}" text-anchor="${finalAnchor}" fill="${finalColor}" font-family="Fraunces, serif" font-size="${isMobile?13:12}" font-weight="500">${v}</text>` : '';
       return `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" stroke="#0a1f1a" stroke-width="1.5"/>${label}`;
     }).join('');
   };
 
-  // Y ticks
-  const tickStep = yMax <= 20 ? 5 : (yMax <= 60 ? 10 : (yMax <= 150 ? 25 : 50));
-  const yTicks = [];
-  for(let t = 0; t <= yMax; t += tickStep) yTicks.push(t);
-  const yGrid = yTicks.map(v => {
-    const yy = yFor(v);
-    return `<g><line x1="${P.left}" y1="${yy}" x2="${W-P.right}" y2="${yy}" stroke="rgba(42,107,86,0.18)" stroke-dasharray="2 3"/><text x="${P.left-8}" y="${yy+3}" text-anchor="end" fill="#6b8a7e" font-family="JetBrains Mono,monospace" font-size="${fsAxis}">${v}</text></g>`;
+  // Ticks générateur
+  const makeTicks = (yMax) => {
+    const step = yMax <= 5 ? 1 : (yMax <= 20 ? 5 : (yMax <= 60 ? 10 : (yMax <= 150 ? 25 : 50)));
+    const out = [];
+    for(let t = 0; t <= yMax; t += step) out.push(t);
+    return out;
+  };
+
+  // Grille (basée sur l'axe gauche = injections par défaut)
+  // Si seules les chirurgies sont visibles, on bascule la grille sur leur échelle
+  const gridYFn = CUM_TOGGLES.injections ? yForInj : yForChir;
+  const gridTicks = CUM_TOGGLES.injections ? makeTicks(yInjMax) : makeTicks(yChirMax);
+  const yGrid = gridTicks.map(v => {
+    const yy = gridYFn(v);
+    return `<line x1="${P.left}" y1="${yy}" x2="${W-P.right}" y2="${yy}" stroke="rgba(42,107,86,0.18)" stroke-dasharray="2 3"/>`;
   }).join('');
+
+  // Labels axe gauche (Injections — vert) si visible
+  const leftAxisHtml = CUM_TOGGLES.injections ? makeTicks(yInjMax).map(v => {
+    const yy = yForInj(v);
+    return `<text x="${P.left-8}" y="${yy+3}" text-anchor="end" fill="#6ee7b7" font-family="JetBrains Mono,monospace" font-size="${fsAxis}">${v}</text>`;
+  }).join('') : '';
+
+  // Labels axe droit (Chirurgies — orange) si visible
+  const rightAxisHtml = CUM_TOGGLES.chirurgies ? makeTicks(yChirMax).map(v => {
+    const yy = yForChir(v);
+    return `<text x="${W-P.right+8}" y="${yy+3}" text-anchor="start" fill="#fcd34d" font-family="JetBrains Mono,monospace" font-size="${fsAxis}">${v}</text>`;
+  }).join('') : '';
+
+  // Petit indicateur "axe" sur chaque côté
+  const leftAxisCap = CUM_TOGGLES.injections
+    ? `<text x="${P.left-8}" y="${P.top-8}" text-anchor="end" fill="#6ee7b7" font-family="JetBrains Mono,monospace" font-size="${fsAxis-1}" letter-spacing="0.05em" opacity="0.8">INJ</text>` : '';
+  const rightAxisCap = CUM_TOGGLES.chirurgies
+    ? `<text x="${W-P.right+8}" y="${P.top-8}" text-anchor="start" fill="#fcd34d" font-family="JetBrains Mono,monospace" font-size="${fsAxis-1}" letter-spacing="0.05em" opacity="0.8">CHIR</text>` : '';
 
   // X labels (mois)
   const monthNames = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
   const fmtMonth = (M) => `${monthNames[M.m-1]}`;
-  // Espacement minimum pour éviter chevauchement
   const minGap = isMobile ? 40 : 60;
   const labelIndexes = new Set([0, months.length - 1]);
   let lastX = xFor(0);
@@ -670,21 +701,23 @@ function renderCumulativeChart(){
     return `<text x="${x}" y="${H-12}" text-anchor="${anchor}" fill="#6b8a7e" font-family="JetBrains Mono,monospace" font-size="${fsXLabel}">${fmtMonth(M)}</text>`;
   }).join('');
 
-  // Construction des courbes (seulement les séries activées)
-  const injPath = CUM_TOGGLES.injections ? `<path d="${buildPath(injSeries)}" fill="none" stroke="url(#injGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : '';
-  const chirPath = CUM_TOGGLES.chirurgies ? `<path d="${buildPath(chirSeries)}" fill="none" stroke="url(#chirGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : '';
-  const injPts = CUM_TOGGLES.injections ? buildPoints(injSeries, '#34d399', '#6ee7b7') : '';
-  const chirPts = CUM_TOGGLES.chirurgies ? buildPoints(chirSeries, '#f59e0b', '#fcd34d') : '';
+  // Construction des courbes — chacune sur SON échelle
+  const injPath = CUM_TOGGLES.injections ? `<path d="${buildPath(injSeries, yForInj)}" fill="none" stroke="url(#injGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : '';
+  const chirPath = CUM_TOGGLES.chirurgies ? `<path d="${buildPath(chirSeries, yForChir)}" fill="none" stroke="url(#chirGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : '';
+  // Pour éviter le chevauchement des labels finaux, l'inj est ancrée à droite et la chir aussi (avec un léger décalage vertical si nécessaire)
+  const injPts = CUM_TOGGLES.injections ? buildPoints(injSeries, yForInj, '#34d399', '#6ee7b7', 'end') : '';
+  const chirPts = CUM_TOGGLES.chirurgies ? buildPoints(chirSeries, yForChir, '#f59e0b', '#fcd34d', 'end') : '';
 
-  // Aire de remplissage discrète (sous chaque courbe)
-  const buildArea = (series, gradId) => {
+  // Aires
+  const buildArea = (series, yFn, gradId) => {
     if(series.length < 2) return '';
-    const top = series.map((v, i) => `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFor(v).toFixed(1)}`).join(' ');
-    const bottom = ` L ${xFor(series.length-1).toFixed(1)} ${yFor(0).toFixed(1)} L ${xFor(0).toFixed(1)} ${yFor(0).toFixed(1)} Z`;
+    const top = series.map((v, i) => `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFn(v).toFixed(1)}`).join(' ');
+    const baseY = (P.top + innerH).toFixed(1);
+    const bottom = ` L ${xFor(series.length-1).toFixed(1)} ${baseY} L ${xFor(0).toFixed(1)} ${baseY} Z`;
     return `<path d="${top}${bottom}" fill="url(#${gradId})" opacity="0.15"/>`;
   };
-  const injArea = CUM_TOGGLES.injections ? buildArea(injSeries, 'injAreaGrad') : '';
-  const chirArea = CUM_TOGGLES.chirurgies ? buildArea(chirSeries, 'chirAreaGrad') : '';
+  const injArea = CUM_TOGGLES.injections ? buildArea(injSeries, yForInj, 'injAreaGrad') : '';
+  const chirArea = CUM_TOGGLES.chirurgies ? buildArea(chirSeries, yForChir, 'chirAreaGrad') : '';
 
   container.innerHTML = `
     <svg class="chart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
@@ -707,6 +740,10 @@ function renderCumulativeChart(){
         </linearGradient>
       </defs>
       ${yGrid}
+      ${leftAxisHtml}
+      ${rightAxisHtml}
+      ${leftAxisCap}
+      ${rightAxisCap}
       ${injArea}
       ${chirArea}
       ${injPath}
